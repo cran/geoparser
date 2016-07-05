@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Maëlle Salmon" />
+
+<meta name="date" content="2016-07-05" />
+
+<title>Geoparsing text using the geoparser.io API</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Geoparsing text using the geoparser.io API</h1>
+<h4 class="author"><em>Maëlle Salmon</em></h4>
+<h4 class="date"><em>2016-07-05</em></h4>
+
+
+
+<div id="what-is-geoparsing" class="section level1">
+<h1>What is geoparsing?</h1>
+<p>According to <a href="https://en.wikipedia.org/wiki/Geoparsing">Wikipedia</a>, geoparsing is the process of converting free-text descriptions of places (such as “Springfield”) into unambiguous geographic identifiers (such as lat-lon coordinates). A geoparser is a tool that helps in this process. Geoparsing goes beyond geocoding in that, rather than analyzing structured location references like mailing addresses and numerical coordinates, geoparsing handles ambiguous place names in unstructured text.</p>
+<p>Geoparser.io works best on complete sentences in <em>English</em>. If you have a very short text, such as a partial address like “<code>Auckland New Zealand</code>,” you probably want to use a geocoder tool instead of a geoparser. In R, you can use the <a href="https://cran.r-project.org/package=opencage">opencage</a> package for geocoding!</p>
+</div>
+<div id="how-to-use-the-package" class="section level1">
+<h1>How to use the package</h1>
+<p>You need to input a text whose size is less than 8KB.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(<span class="st">&quot;geoparser&quot;</span>)
+output &lt;-<span class="st"> </span><span class="kw">geoparser_q</span>(<span class="st">&quot;I was born in Vannes and I live in Barcelona&quot;</span>)</code></pre></div>
+<p>The output is list of 2 <code>data.frame</code>s (<code>dply::tbl_df</code>s). The first one is called <code>properties</code> and contains</p>
+<ul>
+<li><p>the api version called <code>apiVersion</code></p></li>
+<li><p>the <code>source</code> of the results</p></li>
+<li><p>the <code>id</code> of the query</p></li>
+<li><p><code>text_md5</code> is the MD5 hash of the text that was sent to the API.</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">output$properties
+<span class="co">#&gt; # A tibble: 1 x 4</span>
+<span class="co">#&gt;   apiVersion       source                    id</span>
+<span class="co">#&gt; *     &lt;fctr&gt;       &lt;fctr&gt;                &lt;fctr&gt;</span>
+<span class="co">#&gt; 1      0.4.0 geoparser.io rdqeRxRF3QBbFLnwV8BNG</span>
+<span class="co">#&gt; # ... with 1 more variables: text_md5 &lt;chr&gt;</span></code></pre></div>
+<p>The second data.frame contains the results and is called results:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">knitr::<span class="kw">kable</span>(output$results)</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">country</th>
+<th align="left">confidence</th>
+<th align="left">name</th>
+<th align="left">admin1</th>
+<th align="left">type</th>
+<th align="left">geometry.type</th>
+<th align="right">longitude</th>
+<th align="right">latitude</th>
+<th align="right">reference1</th>
+<th align="right">reference2</th>
+<th align="left">text_md5</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">FR</td>
+<td align="left">1</td>
+<td align="left">Vannes</td>
+<td align="left">A2</td>
+<td align="left">seat of a second-order administrative division</td>
+<td align="left">Point</td>
+<td align="right">-2.75000</td>
+<td align="right">47.66667</td>
+<td align="right">14</td>
+<td align="right">20</td>
+<td align="left">51e05aeb3366e55795a9729dd74ae901</td>
+</tr>
+<tr class="even">
+<td align="left">ES</td>
+<td align="left">1</td>
+<td align="left">Barcelona</td>
+<td align="left">56</td>
+<td align="left">seat of a first-order administrative division</td>
+<td align="left">Point</td>
+<td align="right">2.15899</td>
+<td align="right">41.38879</td>
+<td align="right">35</td>
+<td align="right">44</td>
+<td align="left">51e05aeb3366e55795a9729dd74ae901</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p><code>country</code> is the <a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">ISO-3166 2-letter country code</a> for the country in which this place is located, or NULL for features outside any sovereign territory.</p></li>
+<li><p><code>confidence</code> is a confidence score produced by the place name disambiguation algorithm. Currently returns a placeholder value; subject to change.</p></li>
+<li><p><code>name</code> is the best name for the specified location, with a preference for official/short name forms (e.g., “<code>New York</code>” over “<code>NYC</code>,” and “<code>California</code>” over “<code>State of California</code>”), which may be different from exactly what appears in the text.</p></li>
+<li><p><code>admin1</code> is a code representing the state/province-level administrative division containing this place. (From GeoNames.org: <em>“Most adm1 are FIPS codes. ISO codes are used for US, CH, BE and ME. UK and Greece are using an additional level between country and fips code. The code ‘<code>00</code>’ stands for general features where no specific adm1 code is defined.”</em>).</p></li>
+<li><p><code>type</code> is a text description of the geographic feature type — see <GeoNames.org> for a complete list. Subject to change.</p></li>
+<li><p><code>geometry.type</code> is the type of the geographical feature, e.g. “<code>Point</code>”.</p></li>
+<li><p><code>longitude</code> is the longitude.</p></li>
+<li><p><code>latitude</code> is the latitude.</p></li>
+<li><p><code>reference1</code> is the start (index of the first character in the place reference) – each reference to this place name found in the input text is on one distinct line.</p></li>
+<li><p><code>reference2</code> the end (index of the first character after the place reference) – each reference to the place name found in the input text is on one distinct line.</p></li>
+<li><p><code>text_md5</code> is the MD5 hash of the text that was sent to the API.</p></li>
+</ul>
+<p>You can input a vector of characters since the function is vectorized. This is the case where the MD5 hash of each text can be useful for further analysis.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(<span class="st">&quot;geoparser&quot;</span>)
+output_v &lt;-<span class="st"> </span><span class="kw">geoparser_q</span>(<span class="dt">text_input =</span> <span class="kw">c</span>(<span class="st">&quot;I was born in Vannes but I live in Barcelona.&quot;</span>,
+<span class="st">&quot;France is the most beautiful place in the world.&quot;</span>, <span class="st">&quot;No place here.&quot;</span>))
+knitr::<span class="kw">kable</span>(output_v$results)</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">country</th>
+<th align="left">confidence</th>
+<th align="left">name</th>
+<th align="left">admin1</th>
+<th align="left">type</th>
+<th align="left">geometry.type</th>
+<th align="right">longitude</th>
+<th align="right">latitude</th>
+<th align="right">reference1</th>
+<th align="right">reference2</th>
+<th align="left">text_md5</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">FR</td>
+<td align="left">1</td>
+<td align="left">Vannes</td>
+<td align="left">A2</td>
+<td align="left">seat of a second-order administrative division</td>
+<td align="left">Point</td>
+<td align="right">-2.75000</td>
+<td align="right">47.66667</td>
+<td align="right">14</td>
+<td align="right">20</td>
+<td align="left">90aba603d6b3f6b916c634f74ebc3a05</td>
+</tr>
+<tr class="even">
+<td align="left">ES</td>
+<td align="left">1</td>
+<td align="left">Barcelona</td>
+<td align="left">56</td>
+<td align="left">seat of a first-order administrative division</td>
+<td align="left">Point</td>
+<td align="right">2.15899</td>
+<td align="right">41.38879</td>
+<td align="right">35</td>
+<td align="right">44</td>
+<td align="left">90aba603d6b3f6b916c634f74ebc3a05</td>
+</tr>
+<tr class="odd">
+<td align="left">FR</td>
+<td align="left">1</td>
+<td align="left">France</td>
+<td align="left">00</td>
+<td align="left">independent political entity</td>
+<td align="left">Point</td>
+<td align="right">2.00000</td>
+<td align="right">46.00000</td>
+<td align="right">0</td>
+<td align="right">6</td>
+<td align="left">33247ffc493ca57619549e512c7b5c59</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">knitr::<span class="kw">kable</span>(output_v$properties)</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">apiVersion</th>
+<th align="left">source</th>
+<th align="left">id</th>
+<th align="left">text_md5</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">0.4.0</td>
+<td align="left">geoparser.io</td>
+<td align="left">35yoBABuYRG0hA0LDMJaZ</td>
+<td align="left">90aba603d6b3f6b916c634f74ebc3a05</td>
+</tr>
+<tr class="even">
+<td align="left">0.4.0</td>
+<td align="left">geoparser.io</td>
+<td align="left">MnAqrKru7pXKu0KWML1JL</td>
+<td align="left">33247ffc493ca57619549e512c7b5c59</td>
+</tr>
+<tr class="odd">
+<td align="left">0.4.0</td>
+<td align="left">geoparser.io</td>
+<td align="left">KNqOJAJh6Ky4s258oE9pq</td>
+<td align="left">a9b35a32dc022502c943daa55520bfc0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="how-does-it-work" class="section level1">
+<h1>How does it work?</h1>
+<p>The API uses the Geonames.org gazetteer data. Geoparser.io uses a variety of named entity recognition tools to extract location names from the raw text input, and then applies a proprietary disambiguation algorithm to resolve location names to specific gazetteer records.</p>
+</div>
+<div id="what-happens-if-the-same-place-occurs-several-times-in-the-text" class="section level1">
+<h1>What happens if the same place occurs several times in the text?</h1>
+<p>If the input text contains several times the same placename, there is one line for each repetition, the only difference between lines being the values of <code>reference1</code> and <code>reference2</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">output2 &lt;-<span class="st"> </span><span class="kw">geoparser_q</span>(<span class="st">&quot;I like Paris and Paris and Paris and yeah it is in France!&quot;</span>)
+knitr::<span class="kw">kable</span>(output2$results)</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">country</th>
+<th align="left">confidence</th>
+<th align="left">name</th>
+<th align="left">admin1</th>
+<th align="left">type</th>
+<th align="left">geometry.type</th>
+<th align="right">longitude</th>
+<th align="right">latitude</th>
+<th align="right">reference1</th>
+<th align="right">reference2</th>
+<th align="left">text_md5</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">FR</td>
+<td align="left">1</td>
+<td align="left">France</td>
+<td align="left">00</td>
+<td align="left">independent political entity</td>
+<td align="left">Point</td>
+<td align="right">2.0000</td>
+<td align="right">46.00000</td>
+<td align="right">51</td>
+<td align="right">57</td>
+<td align="left">34ac61cd71faef0cc4b336b706a7e545</td>
+</tr>
+<tr class="even">
+<td align="left">FR</td>
+<td align="left">1</td>
+<td align="left">Paris</td>
+<td align="left">A8</td>
+<td align="left">capital of a political entity</td>
+<td align="left">Point</td>
+<td align="right">2.3488</td>
+<td align="right">48.85341</td>
+<td align="right">7</td>
+<td align="right">12</td>
+<td align="left">34ac61cd71faef0cc4b336b706a7e545</td>
+</tr>
+<tr class="odd">
+<td align="left">FR</td>
+<td align="left">1</td>
+<td align="left">Paris</td>
+<td align="left">A8</td>
+<td align="left">capital of a political entity</td>
+<td align="left">Point</td>
+<td align="right">2.3488</td>
+<td align="right">48.85341</td>
+<td align="right">17</td>
+<td align="right">22</td>
+<td align="left">34ac61cd71faef0cc4b336b706a7e545</td>
+</tr>
+<tr class="even">
+<td align="left">FR</td>
+<td align="left">1</td>
+<td align="left">Paris</td>
+<td align="left">A8</td>
+<td align="left">capital of a political entity</td>
+<td align="left">Point</td>
+<td align="right">2.3488</td>
+<td align="right">48.85341</td>
+<td align="right">27</td>
+<td align="right">32</td>
+<td align="left">34ac61cd71faef0cc4b336b706a7e545</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="what-happens-if-there-are-no-results-for-the-text" class="section level1">
+<h1>What happens if there are no results for the text?</h1>
+<p>In this case the results table is empty.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">output_nothing &lt;-<span class="st"> </span><span class="kw">geoparser_q</span>(<span class="st">&quot;No placename can be found.&quot;</span>)
+output_nothing$results
+<span class="co">#&gt; # A tibble: 0 x 1</span>
+<span class="co">#&gt; # ... with 1 variables: text_md5 &lt;chr&gt;</span></code></pre></div>
+</div>
+<div id="how-well-does-it-work" class="section level1">
+<h1>How well does it work?</h1>
+<p>The API team has tested the API un-scientifically and noticed a performance similar to other existing geoparsing tools. A scientific evaluation is under way. The public Geoparser.io API works best with professionally-written, professionally-edited news articles, but for Enterprise customers the API team says that it can be tuned/tweaked for other kinds of input (e.g., social media).</p>
+<p>Let’s look at this example:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">output3 &lt;-<span class="st"> </span><span class="kw">geoparser_q</span>(<span class="st">&quot;I live in Hyderabad, India. My mother would prefer living in Hyderabad near Islamabad!&quot;</span>)
+knitr::<span class="kw">kable</span>(output3$results)</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">country</th>
+<th align="left">confidence</th>
+<th align="left">name</th>
+<th align="left">admin1</th>
+<th align="left">type</th>
+<th align="left">geometry.type</th>
+<th align="right">longitude</th>
+<th align="right">latitude</th>
+<th align="right">reference1</th>
+<th align="right">reference2</th>
+<th align="left">text_md5</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">IN</td>
+<td align="left">1</td>
+<td align="left">Hyderabad</td>
+<td align="left">40</td>
+<td align="left">seat of a first-order administrative division</td>
+<td align="left">Point</td>
+<td align="right">78.45636</td>
+<td align="right">17.38405</td>
+<td align="right">10</td>
+<td align="right">19</td>
+<td align="left">645d890dde2bce1092338f0cbc7af011</td>
+</tr>
+<tr class="even">
+<td align="left">IN</td>
+<td align="left">1</td>
+<td align="left">Hyderabad</td>
+<td align="left">40</td>
+<td align="left">seat of a first-order administrative division</td>
+<td align="left">Point</td>
+<td align="right">78.45636</td>
+<td align="right">17.38405</td>
+<td align="right">61</td>
+<td align="right">70</td>
+<td align="left">645d890dde2bce1092338f0cbc7af011</td>
+</tr>
+<tr class="odd">
+<td align="left">IN</td>
+<td align="left">1</td>
+<td align="left">India</td>
+<td align="left">00</td>
+<td align="left">independent political entity</td>
+<td align="left">Point</td>
+<td align="right">79.00000</td>
+<td align="right">22.00000</td>
+<td align="right">21</td>
+<td align="right">26</td>
+<td align="left">645d890dde2bce1092338f0cbc7af011</td>
+</tr>
+<tr class="even">
+<td align="left">BD</td>
+<td align="left">1</td>
+<td align="left">Chittagong</td>
+<td align="left">84</td>
+<td align="left">seat of a first-order administrative division</td>
+<td align="left">Point</td>
+<td align="right">91.83168</td>
+<td align="right">22.33840</td>
+<td align="right">76</td>
+<td align="right">85</td>
+<td align="left">645d890dde2bce1092338f0cbc7af011</td>
+</tr>
+</tbody>
+</table>
+<p>Geoparser.io typically assumes two mentions of the same name appearing so closely together in the same input text refer to the same place. So, because it saw “<code>Hyderabad</code>” (India) in the first sentence, it assumes “<code>Hyderabad</code>” in the second sentence refers to the same city. Also, “<code>Islamabad</code>” is an alternate name for Chittagong, which has a higher population than Islamabad (Pakistan) and is closer to Hyderabad (India).</p>
+<p>Here is another example with a longer text.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">text &lt;-<span class="st"> &quot;Aliwagwag is situated in the Eastern Mindanao Biodiversity \</span>
+<span class="st">Corridor which contains one of the largest remaining blocks of tropical lowland \</span>
+<span class="st">rainforest in the Philippines. It covers an area of 10,491.33 hectares (25,924.6 \</span>
+<span class="st">acres) and a buffer zone of 420.6 hectares (1,039 acres) in the hydrologically \</span>
+<span class="st">rich mountainous interior of the municipalities of Cateel and Boston in Davao \</span>
+<span class="st">Oriental as well as a portion of the municipality of Compostela in Compostela \</span>
+<span class="st">Valley. It is also home to the tallest trees in the Philippines, the Philippine \</span>
+<span class="st">rosewood, known locally as toog. In the waters of the upper Cateel River, a rare \</span>
+<span class="st">species of fish can be found called sawugnun by locals which is harvested as a \</span>
+<span class="st">delicacy.&quot;</span> 
+
+output4 &lt;-<span class="st"> </span><span class="kw">geoparser_q</span>(text)
+knitr::<span class="kw">kable</span>(output4$results)</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">country</th>
+<th align="left">confidence</th>
+<th align="left">name</th>
+<th align="left">admin1</th>
+<th align="left">type</th>
+<th align="left">geometry.type</th>
+<th align="right">longitude</th>
+<th align="right">latitude</th>
+<th align="right">reference1</th>
+<th align="right">reference2</th>
+<th align="left">text_md5</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">PH</td>
+<td align="left">1</td>
+<td align="left">Philippines</td>
+<td align="left">0</td>
+<td align="left">independent political entity</td>
+<td align="left">Point</td>
+<td align="right">122.0000</td>
+<td align="right">13.00000</td>
+<td align="right">159</td>
+<td align="right">170</td>
+<td align="left">d89e347a998b58c6a8e54bc9f9abc073</td>
+</tr>
+<tr class="even">
+<td align="left">PH</td>
+<td align="left">1</td>
+<td align="left">Philippines</td>
+<td align="left">0</td>
+<td align="left">independent political entity</td>
+<td align="left">Point</td>
+<td align="right">122.0000</td>
+<td align="right">13.00000</td>
+<td align="right">513</td>
+<td align="right">524</td>
+<td align="left">d89e347a998b58c6a8e54bc9f9abc073</td>
+</tr>
+<tr class="odd">
+<td align="left">PH</td>
+<td align="left">1</td>
+<td align="left">Cateel</td>
+<td align="left">11</td>
+<td align="left">populated place</td>
+<td align="left">Point</td>
+<td align="right">126.4533</td>
+<td align="right">7.79139</td>
+<td align="right">354</td>
+<td align="right">360</td>
+<td align="left">d89e347a998b58c6a8e54bc9f9abc073</td>
+</tr>
+<tr class="even">
+<td align="left">PH</td>
+<td align="left">1</td>
+<td align="left">Boston</td>
+<td align="left">11</td>
+<td align="left">populated place</td>
+<td align="left">Point</td>
+<td align="right">126.3642</td>
+<td align="right">7.87111</td>
+<td align="right">365</td>
+<td align="right">371</td>
+<td align="left">d89e347a998b58c6a8e54bc9f9abc073</td>
+</tr>
+<tr class="odd">
+<td align="left">PH</td>
+<td align="left">1</td>
+<td align="left">Province of Davao Oriental</td>
+<td align="left">11</td>
+<td align="left">second-order administrative division</td>
+<td align="left">Point</td>
+<td align="right">126.3333</td>
+<td align="right">7.16667</td>
+<td align="right">375</td>
+<td align="right">390</td>
+<td align="left">d89e347a998b58c6a8e54bc9f9abc073</td>
+</tr>
+<tr class="even">
+<td align="left">PH</td>
+<td align="left">1</td>
+<td align="left">Compostela Valley</td>
+<td align="left"></td>
+<td align="left">valley</td>
+<td align="left">Point</td>
+<td align="right">125.9586</td>
+<td align="right">7.60755</td>
+<td align="right">449</td>
+<td align="right">467</td>
+<td align="left">d89e347a998b58c6a8e54bc9f9abc073</td>
+</tr>
+<tr class="odd">
+<td align="left">PH</td>
+<td align="left">1</td>
+<td align="left">Cateel River</td>
+<td align="left">11</td>
+<td align="left">stream</td>
+<td align="left">Point</td>
+<td align="right">126.4533</td>
+<td align="right">7.78750</td>
+<td align="right">602</td>
+<td align="right">614</td>
+<td align="left">d89e347a998b58c6a8e54bc9f9abc073</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="what-can-i-do-with-the-results" class="section level1">
+<h1>What can I do with the results?</h1>
+<p>You might want to map them using <a href="https://rstudio.github.io/leaflet/">leaflet</a> or <a href="https://cran.r-project.org/package=ggmap">ggmap</a> or anything you like. The API website provides <a href="https://geoparser.io/uses.html">suggestions of use</a> for inspiration.</p>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

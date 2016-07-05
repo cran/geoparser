@@ -1,0 +1,16 @@
+3a43ea8249c14f4021e1d1dfd2e2a63a *DESCRIPTION
+66bfd19dca21048684ce21b4b818a6ee *NAMESPACE
+378914555e74d4551495fc95ababf170 *NEWS.md
+be397c4fd10b61940549f18a0c9506e4 *R/geoparser_query.R
+f0696e30e48d7251daf0d7863460324e *R/utils.R
+f2a83320515751173592fc6e7ea7f82c *README.md
+093e30d69f2567a13ac499800d200a21 *build/vignette.rds
+c2c66a983f19fdbdc7754da2be39cd83 *inst/doc/geoparser.R
+e33e5394fc4b722719e3fa9839e97634 *inst/doc/geoparser.Rmd
+84533d126d4d519d47d0053a5df52012 *inst/doc/geoparser.html
+4b5e415fe284216510a439eba4f083ab *man/geoparser_key.Rd
+f4ef03619d9c17fbaed40f53fa906f7d *man/geoparser_q.Rd
+5b4db2f1d2da041968e0b4b96fe59300 *tests/testthat.R
+85afa1fa992b6917ebff5c3efb8711f4 *tests/testthat/test_checks.R
+f89648e6b8ec180ae28bf73222240381 *tests/testthat/test_query.R
+e33e5394fc4b722719e3fa9839e97634 *vignettes/geoparser.Rmd
