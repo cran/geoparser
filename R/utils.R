@@ -116,7 +116,7 @@ function_df <- function(df){
 
   df <- df[rep(1:nrow(df), lengths), ]
   df <- dplyr::group_by(df, start)
-  df <- dplyr::mutate_(df, number = lazyeval::interp(quote(1:n())))
+  df <- dplyr::mutate_(df, number = lazyeval::interp(quote(seq_len(dplyr::n()))))
   df <- dplyr::group_by(df, start)
   df <- dplyr::mutate_(df, reference1 = lazyeval::interp(
       quote(
@@ -164,14 +164,17 @@ geoparser_get_safe <- purrr::safely(geoparser_get)
 #' Retrieve Geoparser.io API key
 #'
 #' A Geoparser.io API Key
-#' Looks in env var \code{GEOPARSER_KEY}
+#' Looks in env var \code{GEOPARSER_KEY}. The function errors if no key is
+#' saved in .Renviron.
 #'
 #' @keywords internal
 #' @export
 geoparser_key <- function(quiet = TRUE) {
   pat <- Sys.getenv("GEOPARSER_KEY")
   if (identical(pat, ""))  {
-    return(NULL)
+    stop("Please provide your Geoparser.io API Key as an argument,
+      or save it in .Renviron,
+      and if you don't have a key yet register at Geoparser.io.")
   }
   if (!quiet) {
     message("Using Geoparser.io API Key from envvar GEOPARSER_KEY")
